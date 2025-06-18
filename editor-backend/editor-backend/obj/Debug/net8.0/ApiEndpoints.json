@@ -1,0 +1,53 @@
+[
+  {
+    "ContainingType": "editor_backend.Controllers.ExportWordTipTap",
+    "Method": "Get",
+    "RelativePath": "api/ExportWordTipTap",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "editor_backend.Controllers.ExportWordTipTap",
+    "Method": "GetDummyJson",
+    "RelativePath": "api/ExportWordTipTap/dummy",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "editor_backend.Controllers.ExportWordTipTap",
+    "Method": "GenerateWord",
+    "RelativePath": "api/ExportWordTipTap/generate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "editor_backend.Controllers.WeatherForecastController",
+    "Method": "Get",
+    "RelativePath": "WeatherForecast",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[editor_backend.WeatherForecast, editor-backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ],
+    "EndpointName": "GetWeatherForecast"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "JVeT6vgE3NZSMc7q0TmTMDEk9sDM+LlByMYbcMcDNCk=",
+  "Source": "editor-backend",
+  "BasePath": "_content/editor-backend",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
