@@ -1,0 +1,70 @@
+.grid-selector {
+  display: inline-block;
+  border: 1px solid #ccc;
+  padding: 8px;
+  background: white;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  user-select: none;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ddd;
+  margin: 1px;
+  background: #f5f5f5;
+  cursor: pointer;
+}
+
+.cell.active {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+}
+
+.label {
+  margin-top: 6px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Show visual indication for resizable column edges */
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+}
+
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  position: relative;
+  border: 1px solid #ccc;
+  padding: 8px;
+  min-width: 30px;
+  vertical-align: top;
+}
+
+.ProseMirror td.resize-cursor,
+.ProseMirror th.resize-cursor {
+  cursor: col-resize;
+}
+
+/* Optional: show draggable handle on hover */
+.ProseMirror td::after,
+.ProseMirror th::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+}

@@ -1,0 +1,271 @@
+.tiptap {
+  :first-child {
+    margin-top: 0;
+  }
+
+.control-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.button-group button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.button-group button:hover {
+  background-color: #f0f0f0;
+}
+
+.button-group button.is-active {
+  background-color: #dbeafe;
+  border-color: #60a5fa;
+  color: #1d4ed8;
+}
+
+
+  /* List styles */
+  ul, 
+  ol {
+    padding: 0 1rem;
+    margin: 1.25rem 1rem 1.25rem 0.4rem;
+    
+    li p {
+      margin-top: 0.25em;
+      margin-bottom: 0.25em;
+    }
+  }
+
+  /* Heading styles */
+  h1, 
+  h2, 
+  h3, 
+  h4, 
+  h5, 
+  h6 {
+    line-height: 1.1;
+    margin-top: 2.5rem;
+    text-wrap: pretty;
+  }
+
+  h1, 
+  h2 {
+    margin-top: 3.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 { 
+    font-size: 1.4rem; 
+  }
+
+  h2 { 
+    font-size: 1.2rem; 
+  }
+
+  h3 { 
+    font-size: 1.1rem; 
+  }
+
+  h4, 
+  h5, 
+  h6 { 
+    font-size: 1rem; 
+  }
+
+  /* Code and preformatted text styles */
+  code {
+    background-color: var(--purple-light);
+    border-radius: 0.4rem;
+    color: var(--black);
+    font-size: 0.85rem;
+    padding: 0.25em 0.3em;
+  }
+
+  pre {
+    background: var(--black);
+    border-radius: 0.5rem;
+    color: var(--white);
+    font-family: 'JetBrainsMono', monospace;
+    margin: 1.5rem 0;
+    padding: 0.75rem 1rem;
+
+    code {
+      background: none;
+      color: inherit;
+      font-size: 0.8rem;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    border-left: 3px solid var(--gray-3);
+    margin: 1.5rem 0;
+    padding-left: 1rem;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--gray-2);
+    margin: 2rem 0;
+  }
+}
+/* Override Tiptap default focus style */
+.ProseMirror:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+
+}
+
+.ProseMirror {
+  height: 100%;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  outline: none;
+  border: none;
+  cursor: text;
+  text-align: left;       
+  display: block;
+ 
+}
+
+
+.ProseMirror::after {
+  content: '';
+  display: block;
+  height: 100%;              /* fill remaining space */
+  min-height: 200px;         /* ensures extra space below */
+}
+
+.button-group button {
+  background-color: #f3f3f3;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 2px;
+  padding: 6px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+.control-group button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.control-group button.is-active {
+  background-color: #958DF1; /* Purple highlight */
+  color: white;
+}
+
+/* Image upload css */
+/* .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+} */
+
+
+
+
+/*Table styles*/
+/* Make table borders visible */
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.ProseMirror table, 
+.ProseMirror th, 
+.ProseMirror td {
+  border: 1px solid #ccc;
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  padding: 8px;
+  text-align: left;
+  background-color: #fff;
+}
+
+.ProseMirror [data-type="mermaid"] {
+  margin: 20px 0;
+}
+/* Editor page format styling */
+
+/* styles.css */
+
+.editor-viewport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: #f0f0f0;
+  height: 100vh;
+  overflow: auto;
+}
+
+.editor-menu {
+  width: 794px;
+  max-width: 100%;
+  padding: 10px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  z-index: 100;
+  position: relative;
+}
+
+.editor-page {
+  width: 437px; 
+  min-height: 618px; 
+  background: white;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  padding: 40px;
+  overflow: auto;
+  border: 1px solid #ddd;
+  position: relative;
+  transform: scale(0.98); /* 2% smaller as you requested */
+  transform-origin: top center;
+}
+
+
+#editor-page {
+  height: 100%;
+  position: relative; /* needed for bounding children */
+ 
+}
+
+
+ /* Give the editor a flexible or fixed height */
+.editor-page .ProseMirror {
+  min-height: 600px; /* or any value you want */
+  height: 100%; 
+  padding-bottom: 30px;     
+  position: relative;
+  background: #f8f9fa;
+}
+
+
