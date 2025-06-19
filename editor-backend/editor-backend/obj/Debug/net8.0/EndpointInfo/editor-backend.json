@@ -5,18 +5,6 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/ExportWordTipTap": {
-      "get": {
-        "tags": [
-          "ExportWordTipTap"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/ExportWordTipTap/dummy": {
       "get": {
         "tags": [

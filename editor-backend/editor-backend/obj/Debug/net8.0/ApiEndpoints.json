@@ -1,16 +1,6 @@
 [
   {
     "ContainingType": "editor_backend.Controllers.ExportWordTipTap",
-    "Method": "Get",
-    "RelativePath": "api/ExportWordTipTap",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "editor_backend.Controllers.ExportWordTipTap",
     "Method": "GetDummyJson",
     "RelativePath": "api/ExportWordTipTap/dummy",
     "HttpMethod": "GET",
@@ -21,7 +11,7 @@
   },
   {
     "ContainingType": "editor_backend.Controllers.ExportWordTipTap",
-    "Method": "GenerateWord",
+    "Method": "GenerateDocx",
     "RelativePath": "api/ExportWordTipTap/generate",
     "HttpMethod": "POST",
     "IsController": true,

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using editor_backend.Data;
+using editor_backend.Services; 
 using editor_backend.Model;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,9 +18,11 @@ namespace editor_backend.Controllers
     public class ExportWordTipTap : ControllerBase
     {
         private readonly AppDbContext dbContext;
+        private WordExportService _exportService;
 
-        public ExportWordTipTap(AppDbContext dbContext)
+        public ExportWordTipTap(AppDbContext dbContext, WordExportService exportService)
         {
+            _exportService = exportService;
             this.dbContext = dbContext;
         }
 
@@ -42,7 +45,23 @@ namespace editor_backend.Controllers
             return Ok(dummy);
         }
 
-        
+        [HttpPost("generate")]
+        public async Task<IActionResult> GenerateDocx()
+        {
+            using var reader = new StreamReader(Request.Body);
+            var json = await reader.ReadToEndAsync();
+
+            if (string.IsNullOrWhiteSpace(json))
+                return BadRequest("Empty JSON");
+
+            var docxBytes = _exportService.GenerateDocxFromJson(json);
+
+            return File(docxBytes,
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        "TiptapExport.docx");
+        }
+
+
     }
 }
 // The errors are due to missing using directives for Newtonsoft.Json.Linq types.
