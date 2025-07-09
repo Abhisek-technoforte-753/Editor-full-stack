@@ -11,12 +11,28 @@
   },
   {
     "ContainingType": "editor_backend.Controllers.ExportWordTipTap",
-    "Method": "GenerateDocx",
-    "RelativePath": "api/ExportWordTipTap/generate",
-    "HttpMethod": "POST",
+    "Method": "GetAllDocs",
+    "RelativePath": "api/ExportWordTipTap/get-all",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "editor_backend.Controllers.ExportWordTipTap",
+    "Method": "SaveDoc",
+    "RelativePath": "api/ExportWordTipTap/save-doc",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "payload",
+        "Type": "editor_backend.Model.EditorJsonSave",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {

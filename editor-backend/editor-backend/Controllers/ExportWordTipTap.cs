@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using editor_backend.Data;
-using editor_backend.Services; 
+// Removed: using editor_backend.Services;
 using editor_backend.Model;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,15 +18,11 @@ namespace editor_backend.Controllers
     public class ExportWordTipTap : ControllerBase
     {
         private readonly AppDbContext dbContext;
-        private WordExportService _exportService;
 
-        public ExportWordTipTap(AppDbContext dbContext, WordExportService exportService)
+        public ExportWordTipTap(AppDbContext dbContext)
         {
-            _exportService = exportService;
             this.dbContext = dbContext;
         }
-
-      
 
         // ✅ NEW: Dummy static JSON data
         [HttpGet("dummy")]
@@ -45,25 +41,25 @@ namespace editor_backend.Controllers
             return Ok(dummy);
         }
 
-        [HttpPost("generate")]
-        public async Task<IActionResult> GenerateDocx()
+        [HttpPost("save-doc")]
+        public async Task<IActionResult> SaveDoc([FromBody] EditorJsonSave payload)
         {
-            using var reader = new StreamReader(Request.Body);
-            var json = await reader.ReadToEndAsync();
+            if (payload == null || string.IsNullOrWhiteSpace(payload.DocJson))
+                return BadRequest("Invalid payload.");
 
-            if (string.IsNullOrWhiteSpace(json))
-                return BadRequest("Empty JSON");
+            // Save to SQL database
+            dbContext.EditorJsonSaves.Add(payload);
+            await dbContext.SaveChangesAsync();
 
-            var docxBytes = _exportService.GenerateDocxFromJson(json);
-
-            return File(docxBytes,
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                        "TiptapExport.docx");
+            return Ok(new { message = "Document saved successfully.", id = payload.Id });
         }
 
-
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAllDocs()
+        {
+            var docs = await dbContext.EditorJsonSaves.ToListAsync();
+            return Ok(docs);
+        }
     }
 }
-// The errors are due to missing using directives for Newtonsoft.Json.Linq types.
-// Add the following using directive at the top of your file:
 

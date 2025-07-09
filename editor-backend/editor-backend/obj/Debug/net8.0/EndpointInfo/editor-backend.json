@@ -17,8 +17,44 @@
         }
       }
     },
-    "/api/ExportWordTipTap/generate": {
+    "/api/ExportWordTipTap/save-doc": {
       "post": {
+        "tags": [
+          "ExportWordTipTap"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditorJsonSave"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditorJsonSave"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditorJsonSave"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditorJsonSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ExportWordTipTap/get-all": {
+      "get": {
         "tags": [
           "ExportWordTipTap"
         ],
@@ -71,6 +107,33 @@
   },
   "components": {
     "schemas": {
+      "EditorJsonSave": {
+        "required": [
+          "docJson",
+          "userId",
+          "verId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "docJson": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "verId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "WeatherForecast": {
         "type": "object",
         "properties": {
