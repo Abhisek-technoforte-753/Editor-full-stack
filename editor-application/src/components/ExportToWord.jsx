@@ -53,7 +53,7 @@ const ExportToWord = ({ editor }) => {
 
   return (
     <div style={{ marginTop: '1rem' }}>
-      <button onClick={exportWord}>Export to Word</button>
+      <button onClick={exportWord}>Download Word</button>
     </div>
   )
 }

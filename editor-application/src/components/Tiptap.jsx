@@ -23,6 +23,7 @@ import ExportToWord from './ExportToWord.jsx'
 import ExportToPdf from './ExportToPdf.jsx'
 import SaveLoadControls from './EditorStorageHandler.jsx'
 import ExportToWordDoc from '../Dummy.jsx'
+import SaveJsonFormat from './SaveJsonFormat.jsx'
 
 // import { FlowChartNodeData } from '../extensions/FlowChartNodeData'
 
@@ -62,7 +63,8 @@ const Tiptap = () => {
            {editor && <ExportToPdf  />}
            {editor && <ExportToWord editor={editor} />}
            {editor && <SaveLoadControls editor={editor} />}
-           {editor && <ExportToWordDoc editor={editor} />}
+           {editor && <SaveJsonFormat editor={editor} />}
+           {/* {editor && <ExportToWordDoc editor={editor} />} */}
         </div>
         
       </div>
@@ -70,8 +72,7 @@ const Tiptap = () => {
       <div id="editor-page" className="editor-page">
         <EditorContent
          editor={editor}
-         
-         />
+       />
       </div>
     </div>
   )
