@@ -13,7 +13,7 @@ function App() {
       <h1>Document Editor</h1>
       
       <nav>
-        <ul>
+        <ul className='nav-links'>
           <li><Link to="/">Editor</Link></li>
           <li><Link to="/dummy">Dummy</Link></li>
           <li><Link to="/versions">Versions</Link></li>

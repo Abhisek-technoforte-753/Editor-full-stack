@@ -24,7 +24,9 @@ import ExportToPdf from './ExportToPdf.jsx'
 import SaveLoadControls from './EditorStorageHandler.jsx'
 import ExportToWordDoc from '../Dummy.jsx'
 import SaveJsonFormat from './SaveJsonFormat.jsx'
-
+import SmartQuotes from './SmartQuotes.js'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
 // import { FlowChartNodeData } from '../extensions/FlowChartNodeData'
 
 
@@ -35,10 +37,9 @@ const Tiptap = () => {
     extensions: [
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
       TextStyle.configure({ types: [ListItem.name] }),
-      StarterKit.configure({
-        bulletList: { keepMarks: true },
-        orderedList: { keepMarks: true },
-      }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      StarterKit,
       Underline,
       Strike,
       BulletList,
@@ -50,9 +51,11 @@ const Tiptap = () => {
       Image,
       Shape,
       Line,
+      SmartQuotes
       ],
     // content: `<p>Hello Tiptap!</p>`,
     content: savedJSON ? JSON.parse(savedJSON) : '<p>Hello Tiptap!</p>',
+    
   })
 
   return (

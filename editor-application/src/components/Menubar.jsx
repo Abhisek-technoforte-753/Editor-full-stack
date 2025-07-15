@@ -18,20 +18,24 @@ import {
   TableIcon,
   ImageIcon,
   Shapes,
+  ChevronDown,
+  CheckSquare
 } from 'lucide-react' // make sure you have lucide-react installed
 import { TableGridSelector } from './TableGridSelector' // your custom table grid selector component
 import "./menubar.css" // import your CSS styles for the menu bar
+import { ListDropdownMenu } from './ListDropdownMenu'
+
 export const MenuBar = ({ editor }) => {
   const [showTableGrid, setShowTableGrid] = useState(false)
   const [showShapeDropdown, setShowShapeDropdown] = useState(false)
-   const [tableAction, setTableAction] = useState('')
+  const [tableAction, setTableAction] = useState('')
   const fileInputRef = useRef(null)
-
+// const [showListDropdown, setShowListDropdown] = useState(false)
   if (!editor) {
     return null
   }
 
-   const handleTableAction = (action) => {
+  const handleTableAction = (action) => {
     switch (action) {
       case 'addColumnBefore':
         editor.commands.addColumnBefore()
@@ -84,7 +88,7 @@ export const MenuBar = ({ editor }) => {
     }
   }
 
-   const insertShape = (type, label) => {
+  const insertShape = (type, label) => {
     editor.chain().focus().insertShape(type, label).run()
     setShowShapeDropdown(false)
   }
@@ -121,55 +125,55 @@ export const MenuBar = ({ editor }) => {
       </button>
       {/* Shape insertion buttons */}
       <div
-      className="control-group"
-      style={{
-        padding: '10px',
-        border: '1px solid #ccc',
-        backgroundColor: '#fff',
-        marginBottom: '16px',
-        borderRadius: '6px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '8px',
-        position: 'relative',
-      }}
-    >
-     
+        className="control-group"
+        style={{
+          padding: '10px',
+          border: '1px solid #ccc',
+          backgroundColor: '#fff',
+          marginBottom: '16px',
+          borderRadius: '6px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+          position: 'relative',
+        }}
+      >
 
-      {/* Shape dropdown trigger */}
-      <div >
-        <button onClick={() => setShowShapeDropdown(prev => !prev)} type="button">
-          <Shapes size={18} /> Shape
-        </button>
 
-        {showShapeDropdown && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '40px',
-              left: 0,
-              background: '#fff',
-              border: '1px solid #ccc',
-              borderRadius: '6px',
-              padding: '10px',
-              zIndex: 1000,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            }}
-          >
-            <button onClick={() => insertShape('rectangle', 'Rectangle')}>🟥 Rectangle</button>
-            <button onClick={() => insertShape('circle', 'Circle')}>⭕ Circle</button>
-            <button onClick={() => insertShape('triangle', 'Triangle')}>🔺 Triangle</button>
-            <button onClick={() => insertShape('parallelogram', 'Parallelogram')}>▰ Parallelogram</button>
-            <button onClick={() => insertShape('terminator', 'Terminator')}>🛑 Terminator</button>
-            <button onClick={() => insertShape('decision', 'Decision')}>🔷 Decision</button>
-          </div>
-        )}
-      </div>
-      <div>
-        {/* {editor.isActive('table') && (
+        {/* Shape dropdown trigger */}
+        <div >
+          <button onClick={() => setShowShapeDropdown(prev => !prev)} type="button">
+            <Shapes size={18} /> Shape
+          </button>
+
+          {showShapeDropdown && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '40px',
+                left: 0,
+                background: '#fff',
+                border: '1px solid #ccc',
+                borderRadius: '6px',
+                padding: '10px',
+                zIndex: 1000,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              }}
+            >
+              <button onClick={() => insertShape('rectangle', 'Rectangle')}>🟥 Rectangle</button>
+              <button onClick={() => insertShape('circle', 'Circle')}>⭕ Circle</button>
+              <button onClick={() => insertShape('triangle', 'Triangle')}>🔺 Triangle</button>
+              <button onClick={() => insertShape('parallelogram', 'Parallelogram')}>▰ Parallelogram</button>
+              <button onClick={() => insertShape('terminator', 'Terminator')}>🛑 Terminator</button>
+              <button onClick={() => insertShape('decision', 'Decision')}>🔷 Decision</button>
+            </div>
+          )}
+        </div>
+        <div>
+          {/* {editor.isActive('table') && (
         <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
           <button onClick={() => editor.commands.addColumnBefore()}>
             ➕ Add Column Before
@@ -191,15 +195,15 @@ export const MenuBar = ({ editor }) => {
           </button>
         </div>
       )} */}
-     
+
+        </div>
+
       </div>
-      
-    </div>
       <div>
-         {/* {editor.isActive('table') && ( */}
-        <div style={{height:"100%" }}>
+        {/* {editor.isActive('table') && ( */}
+        <div style={{ height: "100%" }}>
           <select
-          className='table-action-select'
+            className='table-action-select'
             value={tableAction}
             onChange={(e) => handleTableAction(e.target.value)}
           >
@@ -212,7 +216,7 @@ export const MenuBar = ({ editor }) => {
             <option value="deleteColumn">❌ Delete Column</option>
           </select>
         </div>
-      {/* )} */}
+        {/* )} */}
       </div>
       <button onClick={() => editor
         .chain()
@@ -284,13 +288,6 @@ export const MenuBar = ({ editor }) => {
         <Eraser size={16} />
       </button>
 
-      <button
-        onClick={() => editor.chain().focus().clearNodes().run()}
-        type="button"
-        aria-label="Clear Nodes"
-      >
-        <Eraser size={16} />
-      </button>
 
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -310,31 +307,18 @@ export const MenuBar = ({ editor }) => {
         H2
       </button>
 
-      <button
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={editor.isActive('bulletList') ? 'is-active' : ''}
-        type="button"
-        aria-label="Bullet List"
-      >
-        <List size={16} />
-      </button>
+      
+      <div style={{ position: 'relative' }}>
+  
 
+  <ListDropdownMenu editor={editor} />
+</div>
+     
       <button
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={editor.isActive('orderedList') ? 'is-active' : ''}
-        type="button"
-        aria-label="Ordered List"
+        onClick={() => editor.commands.wrapInSmartQuotes()}
+        disabled={!editor || editor.state.selection.empty}
       >
-        <ListOrdered size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        className={editor.isActive('blockquote') ? 'is-active' : ''}
-        type="button"
-        aria-label="Blockquote"
-      >
-        <Quote size={16} />
+        “” Smart Quote
       </button>
 
       <button
