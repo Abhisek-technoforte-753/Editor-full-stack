@@ -15,7 +15,7 @@ const SaveJsonFormat = ({ editor, onLoadJson }) => {
       toUser: "userB",
       status: "Review_B"
     }
-    localStorage.setItem('tiptap-doc', JSON.stringify(payload))
+    localStorage.setItem('tiptap-doc', JSON.stringify(payload));
 
     try {
       const response = await fetch('https://localhost:7119/api/ExportWordTipTap/save-doc', {
@@ -47,7 +47,7 @@ const SaveJsonFormat = ({ editor, onLoadJson }) => {
         // Check for assigned user
         const assignedUser = jsonData.toUser;
         console.log(assignedUser, LOGGED_IN_USER,"-----------------");
-        const readOnly = assignedUser !== LOGGED_IN_USER;
+        const readOnly = assignedUser == LOGGED_IN_USER;
         if (onLoadJson) {
           onLoadJson(jsonData.content, readOnly);
         }
@@ -60,7 +60,7 @@ const SaveJsonFormat = ({ editor, onLoadJson }) => {
   };
 
   return (
-    <div>
+    <div style={{display: 'flex', gap: '10px'}}>
       <button onClick={saveToLocalStorage} style={{ marginTop: '1rem' }}>
         💾 Save-Json
       </button>

@@ -6,9 +6,17 @@ import * as XLSX from 'xlsx-js-style'; // instead of 'xlsx'
 import { saveAs } from 'file-saver';
 import '@univerjs/preset-sheets-core/lib/index.css';
 
+const LOGGED_IN_USER = "userBy"; // Static for now, can be made dynamic later
+
+// Helper to generate a random ID
+function generateRandomId() {
+  return Math.random().toString(36).substr(2, 9);
+}
+
 const UniverEditorExcel = () => {
   const containerRef = useRef(null);
   const univerAPIRef = useRef(null);
+  const [readOnly, setReadOnly] = React.useState(false);
 
   useEffect(() => {
     const { univer, univerAPI } = createUniver({
@@ -30,7 +38,14 @@ const UniverEditorExcel = () => {
   // Export as JSON (preserves styles, formulas, etc.)
   const exportAsJSON = () => {
     const snapshot = univerAPIRef.current.getActiveWorkbook().getSnapshot();
-    const json = JSON.stringify(snapshot, null, 2);
+    const payload = {
+      docId: null,
+      content: snapshot,
+      fromUser: "userA", // Static for now
+      toUser: "userB",   // Static for now
+      status: "Review_B"
+    };
+    const json = JSON.stringify(payload, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     saveAs(blob, 'univer-export.json');
   };
@@ -109,6 +124,44 @@ const UniverEditorExcel = () => {
     saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'univer-export-styled.xlsx');
   };
 
+  // Import JSON and restrict editing if user does not match
+  const loadJsonFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const jsonData = JSON.parse(event.target.result);
+        // Check if it's a wrapper or just the snapshot
+        if (jsonData && typeof jsonData === 'object' && jsonData.content && jsonData.toUser) {
+          const assignedUser = jsonData.toUser;
+          console.log(assignedUser, LOGGED_IN_USER,"-----------------");
+          const isReadOnly = assignedUser !== LOGGED_IN_USER;
+          console.log('About to load snapshot (createWorkbook):', jsonData.content);
+
+          // Change the id to a new unique value to avoid duplicate error
+          jsonData.content.id = generateRandomId();
+
+          univerAPIRef.current.createWorkbook(jsonData.content);
+          console.log('Snapshot loaded successfully');
+          setReadOnly(isReadOnly);
+          alert(isReadOnly ? 'You are not the assigned user. Editor is read-only.' : 'You are the assigned user. You can edit.');
+        } else {
+          console.log('About to load snapshot (createWorkbook, raw):', jsonData);
+          jsonData.id = generateRandomId();
+          univerAPIRef.current.createWorkbook(jsonData);
+          console.log('Snapshot loaded successfully (raw)');
+          setReadOnly(false);
+          alert('Loaded snapshot (no user check). You can edit.');
+        }
+      } catch (err) {
+        console.error('Error loading JSON:', err);
+        alert('Invalid JSON file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div>
       <div style={{ marginBottom: 10 }}>
@@ -118,6 +171,12 @@ const UniverEditorExcel = () => {
         <button onClick={exportAsXLSX}>
           Export as XLSX (values only)
         </button>
+        <input
+          type="file"
+          accept="application/json"
+          style={{ display: 'block', marginTop: '1rem' }}
+          onChange={loadJsonFile}
+        />
       </div>
       <div ref={containerRef} style={{ width: '100%', height: 600, border: '1px solid #ccc' }} />
     </div>

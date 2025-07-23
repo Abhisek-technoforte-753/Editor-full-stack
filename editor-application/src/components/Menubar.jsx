@@ -20,7 +20,11 @@ import {
   Shapes,
   ChevronDown,
   CheckSquare,
-  Underline
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Palette
 } from 'lucide-react' // make sure you have lucide-react installed
 import { TableGridSelector } from './TableGridSelector' // your custom table grid selector component
 import "./menubar.css" // import your CSS styles for the menu bar
@@ -30,6 +34,7 @@ export const MenuBar = ({ editor }) => {
   const [showTableGrid, setShowTableGrid] = useState(false)
   const [showShapeDropdown, setShowShapeDropdown] = useState(false)
   const [tableAction, setTableAction] = useState('')
+  const [showColorDropdown, setShowColorDropdown] = useState(false)
   const fileInputRef = useRef(null)
 // const [showListDropdown, setShowListDropdown] = useState(false)
   if (!editor) {
@@ -104,9 +109,6 @@ export const MenuBar = ({ editor }) => {
           <button title="Strikethrough" onClick={() => editor.chain().focus().toggleStrike().run()} className={`menubar-btn${editor.isActive('strike') ? ' menubar-btn-active' : ''}`}> <Strikethrough size={18} /> </button>
           <button title="Code" onClick={() => editor.chain().focus().toggleCode().run()} className={`menubar-btn${editor.isActive('code') ? ' menubar-btn-active' : ''}`}> <Code size={18} /> </button>
           <button title="Clear Formatting" onClick={() => editor.chain().focus().unsetAllMarks().run()} className="menubar-btn"> <Eraser size={18} /> </button>
-        </div>
-        {/* Row 2 */}
-        <div className="menubar-row">
           <select title="Font Family" onChange={e => editor.chain().focus().setMark('textStyle', { fontFamily: e.target.value }).run()} defaultValue="" className="menubar-select">
             <option value="">Font</option>
             <option value="Arial">Arial</option>
@@ -125,13 +127,52 @@ export const MenuBar = ({ editor }) => {
             <option value="32px">32</option>
           </select>
           <button title="Highlight" onClick={() => editor.chain().focus().toggleHighlight().run()} className="menubar-btn"> <Highlighter size={18} /> </button>
-          <button title="Purple" onClick={() => editor.chain().focus().setColor('#958DF1').run()} className={`menubar-btn${editor.isActive('textStyle', { color: '#958DF1' }) ? ' menubar-btn-active' : ''}`}> <Highlighter size={18} /> </button>
-          <button title="Align Left" onClick={() => editor.chain().focus().setTextAlign('left').run()} className="menubar-btn"><List size={18} className="rotate-90" /></button>
-          <button title="Align Center" onClick={() => editor.chain().focus().setTextAlign('center').run()} className="menubar-btn"><ListOrdered size={18} className="rotate-90" /></button>
+          {/* Color Picker Dropdown */}
+          <div className="menubar-relative" style={{ display: 'inline-block' }}>
+            <button
+              title="Text Color"
+              onClick={() => setShowColorDropdown((prev) => !prev)}
+              className="menubar-btn"
+              type="button"
+            >
+              <Palette size={18} />
+            </button>
+            {showColorDropdown && (
+              <div className="menubar-popup" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, 1fr)',
+                gap: '6px',
+                padding: '10px',
+                background: '#fff',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                position: 'absolute',
+                zIndex: 10
+              }}>
+                {[
+                  '#000000', '#333333', '#666666', '#999999', '#CCCCCC', '#FFFFFF', '#FF0000',
+                  '#FFA500', '#FFFF00', '#008000', '#00CED1', '#0000FF', '#800080', '#FFC0CB',
+                  '#FFD700', '#A52A2A', '#8B4513', '#2E8B57', '#20B2AA', '#4682B4', '#708090'
+                ].map(color => (
+                  <button
+                    key={color}
+                    title={color}
+                    onClick={() => {
+                      editor.chain().focus().setColor(color).run();
+                      setShowColorDropdown(false);
+                    }}
+                    style={{ background: color, width: 22, height: 22, border: editor.isActive('textStyle', { color }) ? '2px solid #333' : '1px solid #ccc', borderRadius: 4, cursor: 'pointer' }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          <button title="Align Left" onClick={() => editor.chain().focus().setTextAlign('left').run()} className="menubar-btn"> <AlignLeft size={18} /> </button>
+          <button title="Align Center" onClick={() => editor.chain().focus().setTextAlign('center').run()} className="menubar-btn"> <AlignCenter size={18} /> </button>
         </div>
-        {/* Row 3 */}
+        {/* Row 2 */}
         <div className="menubar-row">
-          <button title="Align Right" onClick={() => editor.chain().focus().setTextAlign('right').run()} className="menubar-btn"><Quote size={18} className="rotate-90" /></button>
+          <button title="Align Right" onClick={() => editor.chain().focus().setTextAlign('right').run()} className="menubar-btn"> <AlignRight size={18} /> </button>
           <button title="Superscript" onClick={() => editor.chain().focus().toggleSuperscript().run()} className="menubar-btn"> <Type size={18} className="-mb-1" /> <span className="text-xs align-super">sup</span> </button>
           <button title="Subscript" onClick={() => editor.chain().focus().toggleSubscript().run()} className="menubar-btn"> <Type size={18} className="-mt-1" /> <span className="text-xs align-sub">sub</span> </button>
           <ListDropdownMenu editor={editor} />
@@ -159,9 +200,7 @@ export const MenuBar = ({ editor }) => {
             <option value="deleteRow">❌ Delete Row</option>
             <option value="deleteColumn">❌ Delete Column</option>
           </select>
-        </div>
-        {/* Row 4 */}
-        <div className="menubar-row">
+
           <div className="menubar-relative">
             <button title="Insert Shape" onClick={() => setShowShapeDropdown(prev => !prev)} type="button" className="menubar-btn flex items-center gap-1"> <Shapes size={18} /> </button>
             {showShapeDropdown && (
@@ -175,6 +214,7 @@ export const MenuBar = ({ editor }) => {
               </div>
             )}
           </div>
+          
           <button title="Insert Image" onClick={onClickImageButton} type="button" className="menubar-btn"> <ImageIcon size={18} /> </button>
           <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={onFileChange} />
           <button title="Insert Line" onClick={() => editor.chain().focus().insertLine({ x: 100, y: 100, length: 200, angle: 30, strokeWidth: 2, strokeColor: 'black' }).run()} type="button" className="menubar-btn"> <Minus size={18} /> </button>
@@ -183,7 +223,7 @@ export const MenuBar = ({ editor }) => {
           <button title="Undo" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().chain().focus().undo().run()} type="button" className="menubar-btn"> <Undo size={18} /> </button>
           <button title="Redo" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().chain().focus().redo().run()} type="button" className="menubar-btn"> <Redo size={18} /> </button>
         </div>
-      </div>
+       </div>
     </nav>
   )
 }

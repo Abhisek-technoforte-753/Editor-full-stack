@@ -75,14 +75,23 @@ const LOGGED_IN_USER = "userB";
 
 const Tiptap = () => {
   const savedJSON = localStorage.getItem('tiptap-doc')
-  const [content, setContent] = React.useState(savedJSON ? JSON.parse(savedJSON) : '<p>Hello Tiptap!</p>');
+  let initialContent = '<p>Hello Tiptap!</p>';
+  if (savedJSON) {
+    try {
+      const parsed = JSON.parse(savedJSON);
+      // If wrapped in SaveJsonFormat structure, extract .content
+      initialContent = parsed && parsed.content ? parsed.content : parsed;
+    } catch (e) {
+      initialContent = '<p>Hello Tiptap!</p>';
+    }
+  }
+  const [content, setContent] = React.useState(initialContent);
   const [editable, setEditable] = React.useState(true);
 
   const editor = useEditor({
     extensions: [
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
       TextStyle.configure({ types: [ListItem.name] }),
-      // Custom font size and font family via TextStyle
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Highlight,
       Subscript,
