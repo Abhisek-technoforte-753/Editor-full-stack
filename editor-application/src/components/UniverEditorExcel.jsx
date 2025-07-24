@@ -8,6 +8,7 @@ import enUS from '@univerjs/preset-sheets-core/locales/en-US';
 import * as XLSX from 'xlsx-js-style';
 import { saveAs } from 'file-saver';
 import '@univerjs/preset-sheets-core/lib/index.css';
+import { UniverSheetsExchangeClientPlugin } from '@univerjs-pro/sheets-exchange-client';
 
 const LOGGED_IN_USER = "userBy";
 
@@ -35,7 +36,13 @@ const UniverEditorExcel = () => {
       ],
     });
   
+    // Create workbook first
     univerAPI.createWorkbook({});
+
+    // Register the Exchange Client plugin with options if needed
+    univer.registerPlugin(UniverSheetsExchangeClientPlugin, {
+      // Provide any required config here, check docs for details
+    });
     univerAPIRef.current = univerAPI;
   }, []);
   
@@ -100,10 +107,18 @@ const UniverEditorExcel = () => {
             if (styleObj.it === 1) style.font.italic = true;
             if (styleObj.fs) style.font.sz = styleObj.fs;
             if (styleObj.fc) style.font.color = { rgb: styleObj.fc.replace('#', '').toUpperCase() };
-            if (styleObj.bg) style.fill = {
-              patternType: 'solid',
-              fgColor: { rgb: styleObj.bg.replace('#', '').toUpperCase() }
-            };
+            if (styleObj.bg) {
+              let bgColor = styleObj.bg;
+              if (typeof bgColor === 'object' && bgColor.rgb) {
+                bgColor = bgColor.rgb;
+              }
+              if (typeof bgColor === 'string') {
+                style.fill = {
+                  patternType: 'solid',
+                  fgColor: { rgb: bgColor.replace('#', '').toUpperCase() }
+                };
+              }
+            }
           }
           worksheet[cellRef] = {
             v: cell.v,
