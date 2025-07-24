@@ -19,7 +19,7 @@ function App() {
           <li><Link to="/">Editor</Link></li>
           <li><Link to="/dummy">Dummy</Link></li>
           <li><Link to="/versions">Versions</Link></li>
-          <li><Link to="/excel">Excel Luckysheet</Link></li>
+          {/* <li><Link to="/excel">Excel Luckysheet</Link></li> */}
 
           <li><Link to="/univer">Excel Editor</Link></li>
         </ul>
@@ -28,7 +28,7 @@ function App() {
         <Route path="/" element={<Tiptap />} />
         <Route path="/dummy" element={<Dummy />} />
         <Route path="/versions" element={<VersionList />} />
-        <Route path="/excel" element={<TiptapExcel />} />
+        {/* <Route path="/excel" element={<TiptapExcel />} /> */}
         <Route path="/univer" element={<UniverEditor />} />
       </Routes>
     </div>
