@@ -32,17 +32,12 @@ const UniverEditorExcel = () => {
           container: containerRef.current,
         }),
         UniverSheetsSortPreset(),
-        UniverSheetsFilterPreset(), 
+        UniverSheetsFilterPreset(),
       ],
     });
   
     // Create workbook first
     univerAPI.createWorkbook({});
-
-    // Register the Exchange Client plugin with options if needed
-    univer.registerPlugin(UniverSheetsExchangeClientPlugin, {
-      // Provide any required config here, check docs for details
-    });
     univerAPIRef.current = univerAPI;
   }, []);
   
@@ -118,6 +113,10 @@ const UniverEditorExcel = () => {
                   fgColor: { rgb: bgColor.replace('#', '').toUpperCase() }
                 };
               }
+            }
+            if (styleObj.wr === 1 || styleObj.tb === 3) {
+              style.alignment = style.alignment || {};
+              style.alignment.wrapText = true;
             }
           }
           worksheet[cellRef] = {
