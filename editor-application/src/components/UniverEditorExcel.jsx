@@ -101,7 +101,11 @@ const UniverEditorExcel = () => {
             if (styleObj.bl === 1) style.font.bold = true;
             if (styleObj.it === 1) style.font.italic = true;
             if (styleObj.fs) style.font.sz = styleObj.fs;
-            if (styleObj.fc) style.font.color = { rgb: styleObj.fc.replace('#', '').toUpperCase() };
+            if (styleObj.fc) {
+              style.font.color = { rgb: styleObj.fc.replace('#', '').toUpperCase() };
+            } else if (styleObj.cl && styleObj.cl.rgb) {
+              style.font.color = { rgb: styleObj.cl.rgb.replace('#', '').toUpperCase() };
+            }
             if (styleObj.bg) {
               let bgColor = styleObj.bg;
               if (typeof bgColor === 'object' && bgColor.rgb) {
@@ -118,6 +122,44 @@ const UniverEditorExcel = () => {
               style.alignment = style.alignment || {};
               style.alignment.wrapText = true;
             }
+            
+            // Handle borders
+            if (styleObj.bd) {
+              style.border = {};
+              const border = styleObj.bd;
+              
+              // Top border
+              if (border.t && border.t.s === 1) {
+                style.border.top = {
+                  style: 'thin',
+                  color: { rgb: border.t.cl.rgb.replace('#', '').toUpperCase() }
+                };
+              }
+              
+              // Bottom border
+              if (border.b && border.b.s === 1) {
+                style.border.bottom = {
+                  style: 'thin',
+                  color: { rgb: border.b.cl.rgb.replace('#', '').toUpperCase() }
+                };
+              }
+              
+              // Left border
+              if (border.l && border.l.s === 1) {
+                style.border.left = {
+                  style: 'thin',
+                  color: { rgb: border.l.cl.rgb.replace('#', '').toUpperCase() }
+                };
+              }
+              
+              // Right border
+              if (border.r && border.r.s === 1) {
+                style.border.right = {
+                  style: 'thin',
+                  color: { rgb: border.r.cl.rgb.replace('#', '').toUpperCase() }
+                };
+              }
+            }
           }
           worksheet[cellRef] = {
             v: cell.v,
@@ -126,6 +168,15 @@ const UniverEditorExcel = () => {
           };
         }
       }
+    }
+
+    // Handle merged cells
+    const mergeData = sheets[sheetId].mergeData || [];
+    if (mergeData.length > 0) {
+      worksheet['!merges'] = mergeData.map(merge => ({
+        s: { r: merge.startRow, c: merge.startColumn },
+        e: { r: merge.endRow, c: merge.endColumn }
+      }));
     }
 
     worksheet['!ref'] = XLSX.utils.encode_range({
