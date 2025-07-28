@@ -40,13 +40,7 @@ const UniverEditorExcel = () => {
     univerAPI.createWorkbook({});
     univerAPIRef.current = univerAPI;
   }, []);
-  
-
  
-  
-  
-  
-
   const exportAsJSON = () => {
     const snapshot = univerAPIRef.current.getActiveWorkbook().getSnapshot();
     const payload = {
@@ -54,6 +48,7 @@ const UniverEditorExcel = () => {
       content: snapshot,
       fromUser: "userA",
       toUser: "userB",
+      type:"Excel",
       status: "Review_B"
     };
     const json = JSON.stringify(payload, null, 2);
@@ -86,16 +81,33 @@ const UniverEditorExcel = () => {
       for (let c = 0; c <= maxCol; c++) {
         const cell = row[c];
         const cellRef = XLSX.utils.encode_cell({ r, c });
-        if (cell) {
+        
+        // Process cell if it has content OR if it has styles (like borders)
+        const cellData = row[c];
+        if (cellData) {
+          console.log(`Processing cell [${r},${c}]:`, cellData);
           let style = {};
           let styleObj = {};
-          if (cell.s) {
-            if (typeof cell.s === 'string' && snapshot.styles && snapshot.styles[cell.s]) {
-              styleObj = snapshot.styles[cell.s];
-            } else if (typeof cell.s === 'object') {
-              styleObj = cell.s;
+          let cellValue = '';
+          let cellType = 's';
+          
+          // Get cell value and type
+          if (cellData.v !== undefined) {
+            cellValue = cellData.v;
+            cellType = typeof cellData.v === 'number' ? 'n' : 's';
+          }
+          
+          // Get style object
+          if (cellData.s) {
+            if (typeof cellData.s === 'string' && snapshot.styles && snapshot.styles[cellData.s]) {
+              styleObj = snapshot.styles[cellData.s];
+              console.log(`Style for cell [${r},${c}]:`, styleObj);
+            } else if (typeof cellData.s === 'object') {
+              styleObj = cellData.s;
+              console.log(`Inline style for cell [${r},${c}]:`, styleObj);
             }
           }
+          
           if (Object.keys(styleObj).length > 0) {
             style.font = {};
             if (styleObj.bl === 1) style.font.bold = true;
@@ -123,8 +135,26 @@ const UniverEditorExcel = () => {
               style.alignment.wrapText = true;
             }
             
+            // Alignment mapping
+            if (styleObj.ht || styleObj.vt) {
+              style.alignment = style.alignment || {};
+              // Horizontal alignment
+              if (styleObj.ht) {
+                if (styleObj.ht === 1) style.alignment.horizontal = 'left';
+                else if (styleObj.ht === 2) style.alignment.horizontal = 'center';
+                else if (styleObj.ht === 3) style.alignment.horizontal = 'right';
+              }
+              // Vertical alignment
+              if (styleObj.vt) {
+                if (styleObj.vt === 1) style.alignment.vertical = 'top';
+                else if (styleObj.vt === 2) style.alignment.vertical = 'center';
+                else if (styleObj.vt === 3) style.alignment.vertical = 'bottom';
+              }
+            }
+
             // Handle borders
             if (styleObj.bd) {
+              console.log(`Processing borders for cell [${r},${c}]:`, styleObj.bd);
               style.border = {};
               const border = styleObj.bd;
               
@@ -161,9 +191,10 @@ const UniverEditorExcel = () => {
               }
             }
           }
+          
           worksheet[cellRef] = {
-            v: cell.v,
-            t: typeof cell.v === 'number' ? 'n' : 's',
+            v: cellValue,
+            t: cellType,
             s: style,
           };
         }
