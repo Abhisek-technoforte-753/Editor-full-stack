@@ -1,0 +1,116 @@
+.home-container {
+  min-height: 100vh;
+  background: white;
+  padding: 20px;
+}
+
+.form-section {
+  margin-bottom: 30px;
+}
+
+/* Document Info Section */
+.document-info {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #007bff;
+}
+
+.document-info h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.document-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.document-meta span {
+  background: #f8f9fa;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #666;
+  border: 1px solid #e9ecef;
+}
+
+/* Loading States */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.loading {
+  font-size: 18px;
+  color: #666;
+  text-align: center;
+}
+
+/* Editor Section */
+.editor-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.editor-header {
+  background: linear-gradient(135deg, #333 0%, #555 100%);
+  padding: 20px 30px;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.editor-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.editor-container {
+  padding: 30px;
+  min-height: 600px;
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 10px;
+  }
+  
+  .editor-header {
+    padding: 15px 20px;
+  }
+  
+  .editor-container {
+    padding: 20px;
+  }
+}
+
+/* Animation for editor section */
+.editor-container {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} 

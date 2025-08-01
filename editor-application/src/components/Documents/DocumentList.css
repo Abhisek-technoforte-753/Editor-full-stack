@@ -1,0 +1,232 @@
+.document-list-container {
+  max-width: 1400px;
+  margin: 20px auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.list-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.list-header h2 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  font-size: 28px;
+  font-weight: 700;
+
+}
+
+
+
+.table-container {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.document-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.document-table thead {
+  background: rgba(197, 197, 197, 1);
+  color: #333;
+  box-shadow: 0 1px 2px rgba(197, 197, 197, 1);
+}
+
+.document-table th {
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.document-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.3s ease;
+}
+
+.document-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.document-table td {
+  padding: 15px 12px;
+  vertical-align: middle;
+}
+
+.title-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.doc-icon {
+  font-size: 18px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.action-btn {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  display: inline-block;
+  margin-right: 4px;
+  font-weight: 500;
+  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.edit-btn, .delete-btn {
+  font-size: 14px;
+  padding: 6px 8px;
+  min-width: 32px;
+  text-align: center;
+}
+
+.view-btn:hover {
+  background-color: #17a2b8;
+  color: white;
+  border-color: #17a2b8;
+  transform: translateY(-1px);
+}
+
+.edit-btn:hover {
+  background-color: #ffc107;
+  color: white;
+  border-color: #ffc107;
+  transform: translateY(-1px);
+}
+
+.delete-btn:hover {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+  transform: translateY(-1px);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #6c757d;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+}
+
+.no-data p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .document-list-container {
+    margin: 15px;
+    padding: 15px;
+  }
+  
+  .document-table {
+    font-size: 13px;
+  }
+  
+  .document-table th,
+  .document-table td {
+    padding: 12px 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .document-table {
+    font-size: 12px;
+  }
+  
+  .document-table th,
+  .document-table td {
+    padding: 10px 6px;
+  }
+  
+  .actions-cell {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .action-btn {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+  
+  .edit-btn, .delete-btn {
+    font-size: 12px;
+    padding: 4px 6px;
+    min-width: 28px;
+  }
+  
+  .list-header h2 {
+    font-size: 24px;
+  }
+  
+  .list-header p {
+    font-size: 14px;
+  }
+}
+
+/* Animation for table rows */
+.document-table tbody tr {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animation for rows */
+.document-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+.document-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+.document-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+.document-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+.document-table tbody tr:nth-child(5) { animation-delay: 0.5s; } 

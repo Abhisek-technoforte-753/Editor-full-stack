@@ -13,7 +13,8 @@ const SaveJsonFormat = ({ editor, onLoadJson }) => {
       content: json,
       fromUser: "userA",
       toUser: "userB",
-      status: "Review_B"
+      status: "Review_B",
+      type:"Word"
     }
     localStorage.setItem('tiptap-doc', JSON.stringify(payload));
 

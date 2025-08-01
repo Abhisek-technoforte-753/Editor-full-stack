@@ -9,17 +9,19 @@ import * as XLSX from 'xlsx-js-style';
 import { saveAs } from 'file-saver';
 import '@univerjs/preset-sheets-core/lib/index.css';
 import { UniverSheetsExchangeClientPlugin } from '@univerjs-pro/sheets-exchange-client';
+import DocumentForm from './DocumentForm.jsx';
 
-const LOGGED_IN_USER = "userBy";
+
 
 function generateRandomId() {
   return Math.random().toString(36).substr(2, 9);
 }
 
-const UniverEditorExcel = () => {
+const UniverEditorExcel = ({ initialContent, documentData, setEditorInstance }) => {
   const containerRef = useRef(null);
   const univerAPIRef = useRef(null);
   const [readOnly, setReadOnly] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     const { univer, univerAPI } = createUniver({
@@ -39,7 +41,43 @@ const UniverEditorExcel = () => {
     // Create workbook first
     univerAPI.createWorkbook({});
     univerAPIRef.current = univerAPI;
-  }, []);
+    setIsInitialized(true);
+    if (setEditorInstance && univerAPIRef.current) {
+      setEditorInstance(univerAPIRef.current);
+    }
+  }, [setEditorInstance]);
+
+  // Load initial content when component is initialized and initialContent is available
+  useEffect(() => {
+    if (isInitialized && initialContent && univerAPIRef.current) {
+      console.log('Loading initial content in Excel editor:', initialContent);
+      try {
+        // Handle the content structure - it might be nested
+        let contentToLoad = initialContent;
+        if (initialContent.content) {
+          contentToLoad = initialContent.content;
+          console.log('Using nested content:', contentToLoad);
+        }
+        if (contentToLoad && typeof contentToLoad === 'object') {
+          contentToLoad.id = generateRandomId();
+          console.log('Creating workbook with content:', contentToLoad);
+          univerAPIRef.current.createWorkbook(contentToLoad);
+          setReadOnly(false);
+          console.log('Initial content loaded successfully in Excel editor');
+        } else {
+          console.warn('Content to load is not a valid object:', contentToLoad);
+        }
+      } catch (error) {
+        console.error('Error loading initial content in Excel editor:', error);
+      }
+    } else {
+      console.log('Excel editor initialization status:', {
+        isInitialized,
+        hasInitialContent: !!initialContent,
+        hasUniverAPI: !!univerAPIRef.current
+      });
+    }
+  }, [isInitialized, initialContent]);
  
   const exportAsJSON = () => {
     const snapshot = univerAPIRef.current.getActiveWorkbook().getSnapshot();
@@ -223,6 +261,8 @@ const UniverEditorExcel = () => {
     saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'univer-export-styled.xlsx');
   };
 
+ 
+
   const loadJsonFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -230,30 +270,27 @@ const UniverEditorExcel = () => {
     reader.onload = (event) => {
       try {
         const jsonData = JSON.parse(event.target.result);
-        if (jsonData && typeof jsonData === 'object' && jsonData.content && jsonData.toUser) {
-          const assignedUser = jsonData.toUser;
-          const isReadOnly = assignedUser !== LOGGED_IN_USER;
+        console.log('Loading JSON data:', jsonData);
+        if (jsonData.content) {
           jsonData.content.id = generateRandomId();
           univerAPIRef.current.createWorkbook(jsonData.content);
-          setReadOnly(isReadOnly);
-          alert(isReadOnly ? 'You are not the assigned user. Editor is read-only.' : 'You can edit.');
-        } else {
-          jsonData.id = generateRandomId();
-          univerAPIRef.current.createWorkbook(jsonData);
           setReadOnly(false);
-          alert('Loaded snapshot (no user check). You can edit.');
+          alert('JSON file loaded successfully!');
+        } else {
+          alert('Invalid JSON format. Missing content field.');
         }
       } catch (err) {
-        console.error('Error loading JSON:', err);
+        console.error('Error parsing JSON:', err);
         alert('Invalid JSON file.');
       }
     };
     reader.readAsText(file);
   };
 
+ 
   return (
     <div>
-      <div style={{ marginBottom: 10 }}>
+      <div style={{ marginBottom: 10, display: 'flex', gap: '10px', alignItems: 'center' }}>
         <button onClick={exportAsJSON} style={{ marginRight: 10 }}>
           Export as JSON (with styles)
         </button>
@@ -263,11 +300,12 @@ const UniverEditorExcel = () => {
         <input
           type="file"
           accept="application/json"
-          style={{ display: 'block', marginTop: '1rem' }}
+          style={{ display: 'block' }}
           onChange={loadJsonFile}
         />
       </div>
       <div ref={containerRef} style={{ width: '100%', height: 600, border: '1px solid #ccc' }} />
+
     </div>
   );
 };
