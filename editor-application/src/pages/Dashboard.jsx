@@ -53,7 +53,7 @@ const Dashboard = () => {
         <div className="dashboard-card">
           <h2>Document Editor</h2>
           <p>Create and edit rich text documents with advanced formatting options.</p>
-          <button onClick={() => navigate('/editor')} className="dashboard-btn">
+          <button onClick={() => navigate('/editor?type=word')} className="dashboard-btn">
   Open Editor
 </button>
         </div>
@@ -61,7 +61,7 @@ const Dashboard = () => {
         <div className="dashboard-card">
           <h2>Excel Editor</h2>
           <p>Work with spreadsheets using the powerful Univer Excel editor.</p>
-          <button onClick={() => navigate('/editor')} className="dashboard-btn">
+          <button onClick={() => navigate('/editor?type=excel')} className="dashboard-btn">
   Open Excel Editor
 </button>
         </div>

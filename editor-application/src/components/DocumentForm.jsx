@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from 'react'
 import './DocumentForm.css'
 
-const DocumentForm = ({ onSave, onLoadJson, editor, formData: externalFormData, onFormDataChange }) => {
+const DocumentForm = ({ onSave, onLoadJson, editor, formData: externalFormData, onFormDataChange, canEdit = true }) => {
   const [formData, setFormData] = useState({
     title: '',
     docType: 'Word',
@@ -13,6 +13,7 @@ const DocumentForm = ({ onSave, onLoadJson, editor, formData: externalFormData, 
     kpi: '',
     managementSystemMapping: '',
     itSystems: [],
+    fromUserId: '',
     toUserId: ''
   });
 
@@ -45,6 +46,8 @@ const DocumentForm = ({ onSave, onLoadJson, editor, formData: externalFormData, 
   // Use external form data if provided
   const currentFormData = externalFormData || formData;
   const handleInputChange = (field, value) => {
+    if (!canEdit) return; // Prevent changes if not editable
+    
     if (onFormDataChange) {
       onFormDataChange(field, value);
     } else {
@@ -54,44 +57,7 @@ const DocumentForm = ({ onSave, onLoadJson, editor, formData: externalFormData, 
       }));
     }
   };
-
-  const handleSave = async () => {
-    console.log(editor,"editor")
-
-    if (!editor) return;
-    console.log(editor,"editor")
-    // Handle different editor types
-    let json;
-    if (editor.getJSON) {
-      // Tiptap editor
-      json = editor.getJSON();
-    } else if (editor.getActiveWorkbook) {
-      // Univer editor
-      json = editor.getActiveWorkbook().getSnapshot();
-    } else {
-      console.error('Unknown editor type');
-      return;
-    }
-    
-    const payload = {
-      title: currentFormData.title,
-      docType: currentFormData.docType,
-      jsonContent: JSON.stringify(json),
-      location: currentFormData.location,
-      department: currentFormData.department,
-      section: currentFormData.section,
-      subSection: currentFormData.subSection,
-      status: currentFormData.status,
-      managementSystem: currentFormData.managementSystemMapping,
-      itSystems: Array.isArray(currentFormData.itSystems) ? currentFormData.itSystems.join(',') : currentFormData.itSystems,
-      fromUser: "userA",
-      toUser: currentFormData.toUserId
-    };
-console.log(payload,"ghkjhllkkjhkjhkjhk")
-    if (onSave) {
-      await onSave(payload);
-    }
-  };
+  
 
   const handleCancel = () => {
     const emptyForm = {
@@ -105,6 +71,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
       kpi: '',
       managementSystemMapping: '',
       itSystems: [],
+      fromUserId: '',
       toUserId: ''
     };
     if (onFormDataChange) {
@@ -115,53 +82,27 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
     }
   };
 
-  const loadJsonFile = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleSaveClick = () => {
+    if (!canEdit) {
+      alert('You do not have permission to edit this document.');
+      return;
+    }
     
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const jsonData = JSON.parse(event.target.result);
-        console.log('Loading JSON data in DocumentForm:', jsonData);
-        
-        // Populate form data if available in the JSON
-          if (onFormDataChange) {
-            if (jsonData.title) onFormDataChange('title', jsonData.title);
-            if (jsonData.docType) onFormDataChange('docType', jsonData.docType);
-            if (jsonData.location) onFormDataChange('location', jsonData.location);
-            if (jsonData.department) onFormDataChange('department', jsonData.department);
-            if (jsonData.section) onFormDataChange('section', jsonData.section);
-            if (jsonData.subSection) onFormDataChange('subSection', jsonData.subSection);
-            if (jsonData.status) onFormDataChange('status', jsonData.status);
-            if (jsonData.kpi) onFormDataChange('kpi', jsonData.kpi);
-            if (jsonData.managementSystemMapping) onFormDataChange('managementSystemMapping', jsonData.managementSystemMapping);
-            if (jsonData.itSystems) onFormDataChange('itSystems', Array.isArray(jsonData.itSystems) ? jsonData.itSystems : []);
-            if (jsonData.toUserId) onFormDataChange('toUserId', jsonData.toUserId);
-          } else {
-            if (jsonData.title) setFormData(prev => ({ ...prev, title: jsonData.title }));
-            if (jsonData.docType) setFormData(prev => ({ ...prev, docType: jsonData.docType }));
-            if (jsonData.location) setFormData(prev => ({ ...prev, location: jsonData.location }));
-            if (jsonData.department) setFormData(prev => ({ ...prev, department: jsonData.department }));
-            if (jsonData.section) setFormData(prev => ({ ...prev, section: jsonData.section }));
-            if (jsonData.subSection) setFormData(prev => ({ ...prev, subSection: jsonData.subSection }));
-            if (jsonData.status) setFormData(prev => ({ ...prev, status: jsonData.status }));
-            if (jsonData.kpi) setFormData(prev => ({ ...prev, kpi: jsonData.kpi }));
-            if (jsonData.managementSystemMapping) setFormData(prev => ({ ...prev, managementSystemMapping: jsonData.managementSystemMapping }));
-            if (jsonData.itSystems) setFormData(prev => ({ ...prev, itSystems: Array.isArray(jsonData.itSystems) ? jsonData.itSystems : [] }));
-            if (jsonData.toUserId) setFormData(prev => ({ ...prev, toUserId: jsonData.toUserId }));
-          }
-        
-        if (onLoadJson) {
-          onLoadJson(jsonData);
-        }
-      } catch (err) {
-        console.error('Error parsing JSON:', err);
-        alert('Invalid JSON file.');
-      }
+    // Create payload with form data only
+    // Editor content will be added by the parent component
+    const payload = {
+      ...currentFormData,
+      createdAt: new Date().toISOString()
     };
-    reader.readAsText(file);
+    
+    console.log('DocumentForm - Form data payload:', payload);
+    
+    // Call the parent's onSave function
+    if (onSave) {
+      onSave(payload);
+    }
   };
+
 
   return (
     <div className="document-form-container">
@@ -180,6 +121,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
                value={currentFormData.title}
                onChange={(e) => handleInputChange('title', e.target.value)}
                placeholder="Enter document title"
+               disabled={!canEdit}
              />
           </div>
 
@@ -188,6 +130,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
                          <select
                value={currentFormData.docType}
                onChange={(e) => handleInputChange('docType', e.target.value)}
+               disabled={!canEdit}
              >
               <option value="Word">Word</option>
               <option value="Excel">Excel</option>
@@ -202,6 +145,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
                value={currentFormData.location}
                onChange={(e) => handleInputChange('location', e.target.value)}
                placeholder="Enter location"
+               disabled={!canEdit}
              />
           </div>
 
@@ -212,6 +156,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
                value={currentFormData.department}
                onChange={(e) => handleInputChange('department', e.target.value)}
                placeholder="Enter department"
+               disabled={!canEdit}
              />
            </div>
 
@@ -222,6 +167,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
                value={currentFormData.section}
                onChange={(e) => handleInputChange('section', e.target.value)}
                placeholder="Enter section"
+               disabled={!canEdit}
              />
           </div>
         </div>
@@ -235,6 +181,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
                value={currentFormData.subSection}
                onChange={(e) => handleInputChange('subSection', e.target.value)}
                placeholder="Enter sub section"
+               disabled={!canEdit}
              />
            </div>
 
@@ -243,6 +190,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
              <select
                value={currentFormData.status}
                onChange={(e) => handleInputChange('status', e.target.value)}
+               disabled={!canEdit}
              >
               <option value="Draft">Draft</option>
               <option value="PendingReview">Pending Review</option>
@@ -258,6 +206,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
                value={currentFormData.kpi}
                onChange={(e) => handleInputChange('kpi', e.target.value)}
                placeholder="Enter KPI"
+               disabled={!canEdit}
              />
            </div>
 
@@ -268,6 +217,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
                value={currentFormData.managementSystemMapping}
                onChange={(e) => handleInputChange('managementSystemMapping', e.target.value)}
                placeholder="Enter management system"
+               disabled={!canEdit}
              />
           </div>
         </div>
@@ -279,7 +229,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
             <select
               value={currentFormData.toUserId}
               onChange={(e) => handleInputChange('toUserId', e.target.value)}
-              disabled={usersLoading || usersError}
+              disabled={usersLoading || usersError || !canEdit}
             >
               <option value="">{usersLoading ? 'Loading users...' : usersError ? 'Error loading users' : 'Select a user'}</option>
               {!usersLoading && !usersError && users.map(user => (
@@ -298,6 +248,7 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
                value={currentFormData.itSystems.join(', ')}
                onChange={(e) => handleInputChange('itSystems', e.target.value.split(', ').filter(item => item.trim()))}
                placeholder="Enter IT systems (comma separated)"
+               disabled={!canEdit}
              />
           </div>
         </div>
@@ -305,11 +256,12 @@ console.log(payload,"ghkjhllkkjhkjhkjhk")
 
       {/* Button Row */}
     <div className="button-row">
-        {/* <button className="btn-secondary">Download Data</button> */}
-        <button className="btn-primary" onClick={handleSave}>💾 Save-Json</button>
-        <button className="btn-secondary" onClick={handleCancel}>Clear</button>
-        {/* <button className="btn-secondary">Add</button> */}
-        {/* <button className="btn-secondary">Edit</button> */}
+        
+        <button className="btn-primary" onClick={handleSaveClick} disabled={!canEdit}>
+          {canEdit ? '💾 Save Document' : '👁️ View Only'}
+        </button>
+        <button className="btn-secondary" onClick={handleCancel} disabled={!canEdit}>Clear</button>
+      
     </div>
    </div>
   );

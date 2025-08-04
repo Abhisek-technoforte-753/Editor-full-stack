@@ -72,7 +72,7 @@ const Subscript = Mark.create({
 
 const LOGGED_IN_USER = "userB";
 
-const Tiptap = ({ initialContent: propInitialContent, documentData }) => {
+const Tiptap = ({ initialContent: propInitialContent, documentData, setEditorInstance, readOnly = false }) => {
   // Priority: prop data > localStorage > default
   let initialContent = '<p>Hello Tiptap!</p>';
   
@@ -92,7 +92,7 @@ const Tiptap = ({ initialContent: propInitialContent, documentData }) => {
     }
   }
   const [content, setContent] = React.useState(initialContent);
-  const [editable, setEditable] = React.useState(true);
+  const [editable, setEditable] = React.useState(!readOnly);
 
   const editor = useEditor({
     extensions: [
@@ -120,6 +120,12 @@ const Tiptap = ({ initialContent: propInitialContent, documentData }) => {
     ],
     content,
     editable,
+    onUpdate: ({ editor }) => {
+      // Update the editor instance in parent component
+      if (setEditorInstance) {
+        setEditorInstance(editor);
+      }
+    },
   })
 
   // Handler for loading JSON and setting editability
@@ -161,29 +167,23 @@ const Tiptap = ({ initialContent: propInitialContent, documentData }) => {
     reader.readAsText(file);
   };
 
-  // Handler for saving document
-  const handleSave = async (payload) => {
-    try {
-      const response = await fetch('https://localhost:7119/api/ExportWordTipTap/save-doc', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Saved to API:', result);
-        alert('Document saved successfully!');
-      } else {
-        const error = await response.text();
-        console.error('API error:', error);
-        alert('Failed to save to backend.');
-      }
-    } catch (error) {
-      console.error('Request failed:', error);
-      alert('Network error or server unreachable.');
+  // Note: handleSave is now handled by the parent Home component
+  // This component focuses on editor functionality only
+  
+  // Set editor instance when editor is created
+  React.useEffect(() => {
+    if (editor && setEditorInstance) {
+      setEditorInstance(editor);
     }
-  };
+  }, [editor, setEditorInstance]);
+
+  // Update editable state when readOnly prop changes
+  React.useEffect(() => {
+    if (editor) {
+      editor.setEditable(!readOnly);
+      setEditable(!readOnly);
+    }
+  }, [readOnly, editor]);
 
   return (
     <div className="editor-viewport">

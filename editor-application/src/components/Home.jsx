@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 import DocumentForm from './DocumentForm';
 import Tiptap from './Tiptap';
 import UniverEditorExcel from './UniverEditorExcel';
@@ -11,6 +12,16 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [documentData, setDocumentData] = useState(null);
   const [editorType, setEditorType] = useState('word'); // 'word' or 'excel'
+  const [urlId, setUrlId] = useState(null); // Store the ID from URL
+  const [canEdit, setCanEdit] = useState(true); // Permission to edit document
+  const { user } = useAuth(); // Get logged-in user
+  
+  // Debug: Log user data on component mount
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem('user') || '{}');
+    console.log('Home component - User data from localStorage:', loggedInUser);
+    console.log('Home component - User data from AuthContext:', user);
+  }, [user]);
   const [formData, setFormData] = useState({
     title: '',
     docType: 'Word',
@@ -19,10 +30,7 @@ const Home = () => {
     section: '',
     subSection: '',
     status: 'Draft',
-    isLegalRequired: false,
-    isGoldenRule: false,
     kpi: '',
-    konzernMapping: '',
     managementSystemMapping: '',
     itSystems: [],
     fromUserId: '',
@@ -31,25 +39,36 @@ const Home = () => {
 
   // Load document data when ID is present in URL
   useEffect(() => {
-    const id = searchParams.get('id');
+    const id = searchParams.get('id') || new URLSearchParams(window.location.search).get('id');
+    const editorTypeParam = searchParams.get('type') || new URLSearchParams(window.location.search).get('type');
+    console.log('useEffect - searchParams:', searchParams.toString());
+    console.log('useEffect - window.location.search:', window.location.search);
+    console.log('useEffect - extracted ID:', id);
+    console.log('useEffect - editor type param:', editorTypeParam);
+    
+    // Store the ID in state for later use
+    setUrlId(id);
+    
     if (id) {
       loadDocumentData(id);
     } else {
-      // No id: start a new document (default to Word editor, empty data)
-      setEditorType('word');
+      // No id: start a new document based on URL parameter or default to Word
+      const newEditorType = editorTypeParam === 'excel' ? 'excel' : 'word';
+      const newDocType = editorTypeParam === 'excel' ? 'Excel' : 'Word';
+      
+      console.log('Setting new document type:', { newEditorType, newDocType });
+      
+      setEditorType(newEditorType);
       setDocumentData({});
       setFormData({
         title: '',
-        docType: 'Word',
+        docType: newDocType,
         location: '',
         department: '',
         section: '',
         subSection: '',
         status: 'Draft',
-        isLegalRequired: false,
-        isGoldenRule: false,
         kpi: '',
-        konzernMapping: '',
         managementSystemMapping: '',
         itSystems: [],
         fromUserId: '',
@@ -71,6 +90,24 @@ const Home = () => {
       console.log('Loaded document data:', data);
       setDocumentData(data);
       
+      // Get logged-in user from localStorage for permission check
+      const loggedInUser = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      // Check if current user can edit this document
+      const currentUserId = loggedInUser.id?.toString() || '';
+      const documentCreatorId = data.fromUser?.toString() || '';
+      const isCreator = currentUserId === documentCreatorId;
+      
+      console.log('Permission check:', {
+        currentUserId,
+        documentCreatorId,
+        isCreator,
+        canEdit: isCreator,
+        loggedInUser
+      });
+      
+      setCanEdit(isCreator);
+      
       // Update form data with loaded document data
       setFormData({
         title: data.title || '',
@@ -80,10 +117,7 @@ const Home = () => {
         section: data.section || '',
         subSection: data.subSection || '',
         status: data.status || 'Draft',
-        isLegalRequired: false,
-        isGoldenRule: false,
-        kpi: '',
-        konzernMapping: '',
+        kpi: data.kpi || '',
         managementSystemMapping: data.managementSystem || '',
         itSystems: data.itSystems ? data.itSystems.split(',') : [],
         fromUserId: data.fromUser || '',
@@ -113,23 +147,61 @@ const Home = () => {
   };
 
   const handleSave = async (payload) => {
-    const id = searchParams.get('id');
-    console.log(id,"jfksdjfklsdfkldsflksdfkdsjlkdsks");
+    // Use the stored ID from state, fallback to URL params
+    const id = urlId || searchParams.get('id') || new URLSearchParams(window.location.search).get('id');
+    console.log('Stored URL ID:', urlId);
+    console.log('URL params:', searchParams.toString());
+    console.log('Window location search:', window.location.search);
+    console.log('Final extracted ID:', id);
+    
+    // Get editor content if editor instance is available
+    let editorContent = null;
+    if (editorInstance && editorInstance.getJSON) {
+      editorContent = editorInstance.getJSON();
+      console.log('Editor content:', editorContent);
+    }
+    
+    // Get logged-in user from localStorage
+    const loggedInUser = JSON.parse(localStorage.getItem('user') || '{}');
+    console.log('Logged in user from localStorage:', loggedInUser);
+    
+    // Merge form data with editor content and map to backend model
+    const finalPayload = {
+      title: payload.title,
+      docType: payload.docType,
+      jsonContent: editorContent ? JSON.stringify(editorContent) : payload.docJson || '',
+      location: payload.location,
+      department: payload.department,
+      section: payload.section,
+      subSection: payload.subSection,
+      status: payload.status,
+      managementSystem: payload.managementSystemMapping,
+      itSystems: Array.isArray(payload.itSystems) ? payload.itSystems.join(', ') : payload.itSystems,
+      fromUser: id ? payload.fromUserId : (loggedInUser.id?.toString() || ''), // Use logged-in user ID for new docs
+      toUser: payload.toUserId,
+      verId: 1, // Default version
+      createdAt: new Date().toISOString()
+    };
+    
+    console.log('Final payload to save:', finalPayload);
+    
     let response;
     try {
       if (id) {
         // Edit existing document
+        console.log('Updating existing document with ID:', id);
         response = await fetch(`https://localhost:7119/api/ExportWordTipTap/edit-doc/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(finalPayload)
         });
       } else {
         // Create new document
+        console.log('Creating new document');
         response = await fetch('https://localhost:7119/api/ExportWordTipTap/save-doc', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(finalPayload)
         });
       }
 
@@ -137,6 +209,12 @@ const Home = () => {
         const result = await response.json();
         console.log('Saved to API:', result);
         alert(id ? 'Document updated successfully!' : 'Document saved successfully!');
+        
+        // If this was a new document, redirect to the edit URL with the new ID
+        if (!id && result.id) {
+          window.history.pushState({}, '', `/editor?id=${result.id}`);
+          setUrlId(result.id.toString());
+        }
       } else {
         const error = await response.text();
         console.error('API error:', error);
@@ -183,7 +261,7 @@ const Home = () => {
 
   return (
     <div className="home-container">
-     {/* Document Form Section */}
+           {/* Document Form Section */}
       <div className="form-section">
         <DocumentForm 
           onSave={handleSave}
@@ -191,6 +269,7 @@ const Home = () => {
           formData={formData}
           onFormDataChange={handleFormDataChange}
           editor={editorInstance}
+          canEdit={canEdit}
         />
       </div>
 
@@ -208,12 +287,14 @@ const Home = () => {
               initialContent={parseJsonContent(documentData?.jsonContent)}
               documentData={documentData}
               setEditorInstance={setEditorInstance}
+              readOnly={!canEdit}
             />
           ) : (
             <Tiptap 
               initialContent={parseJsonContent(documentData?.jsonContent)}
               documentData={documentData}
               setEditorInstance={setEditorInstance}
+              readOnly={!canEdit}
             />
           )}
         </div>
