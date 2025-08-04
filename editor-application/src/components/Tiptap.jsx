@@ -16,29 +16,95 @@ import OrderedList from '@tiptap/extension-ordered-list'
 import Image from '@tiptap/extension-image'
 import { MenuBar } from './Menubar'
 import './styles.css'
-import  Shape  from './Shape.jsx'
+import Shape from './Shape.jsx'
 import Line from './Line.jsx'
 // import ExportImport from './ExportImport'
 import ExportToWord from './ExportToWord.jsx'
 import ExportToPdf from './ExportToPdf.jsx'
 import SaveLoadControls from './EditorStorageHandler.jsx'
 import ExportToWordDoc from '../Dummy.jsx'
-import SaveJsonFormat from './SaveJsonFormat.jsx'
+import SmartQuotes from './SmartQuotes.js'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
+import TextAlign from '@tiptap/extension-text-align';
+import Highlight from '@tiptap/extension-highlight';
+import { Mark } from '@tiptap/core';
 
-// import { FlowChartNodeData } from '../extensions/FlowChartNodeData'
+// Custom Superscript extension
+const Superscript = Mark.create({
+  name: 'superscript',
+  parseHTML() {
+    return [
+      { tag: 'sup' },
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['sup', HTMLAttributes, 0];
+  },
+  addCommands() {
+    return {
+      toggleSuperscript: () => ({ commands }) => {
+        return commands.toggleMark('superscript');
+      },
+    };
+  },
+});
 
+// Custom Subscript extension
+const Subscript = Mark.create({
+  name: 'subscript',
+  parseHTML() {
+    return [
+      { tag: 'sub' },
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['sub', HTMLAttributes, 0];
+  },
+  addCommands() {
+    return {
+      toggleSubscript: () => ({ commands }) => {
+        return commands.toggleMark('subscript');
+      },
+    };
+  },
+});
 
-const Tiptap = () => {
-  const savedJSON = localStorage.getItem('tiptap-doc')
+const LOGGED_IN_USER = "userB";
+
+const Tiptap = ({ initialContent: propInitialContent, documentData, setEditorInstance, readOnly = false }) => {
+  // Priority: prop data > localStorage > default
+  let initialContent = '<p>Hello Tiptap!</p>';
+  
+  if (propInitialContent) {
+    // Use content from props (loaded document)
+    initialContent = propInitialContent;
+  } else {
+    // Fallback to localStorage
+    const savedJSON = localStorage.getItem('tiptap-doc');
+    if (savedJSON) {
+      try {
+        const parsed = JSON.parse(savedJSON);
+        initialContent = parsed && parsed.content ? parsed.content : parsed;
+      } catch (e) {
+        initialContent = '<p>Hello Tiptap!</p>';
+      }
+    }
+  }
+  const [content, setContent] = React.useState(initialContent);
+  const [editable, setEditable] = React.useState(!readOnly);
 
   const editor = useEditor({
     extensions: [
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
       TextStyle.configure({ types: [ListItem.name] }),
-      StarterKit.configure({
-        bulletList: { keepMarks: true },
-        orderedList: { keepMarks: true },
-      }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Highlight,
+      Subscript,
+      Superscript,
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      StarterKit,
       Underline,
       Strike,
       BulletList,
@@ -50,30 +116,96 @@ const Tiptap = () => {
       Image,
       Shape,
       Line,
-      ],
-    // content: `<p>Hello Tiptap!</p>`,
-    content: savedJSON ? JSON.parse(savedJSON) : '<p>Hello Tiptap!</p>',
+      SmartQuotes
+    ],
+    content,
+    editable,
+    onUpdate: ({ editor }) => {
+      // Update the editor instance in parent component
+      if (setEditorInstance) {
+        setEditorInstance(editor);
+      }
+    },
   })
+
+  // Handler for loading JSON and setting editability
+  const handleLoadJson = (jsonData) => {
+    if (jsonData.content) {
+      setContent(jsonData.content);
+      setEditable(true);
+      if (editor) {
+        editor.commands.setContent(jsonData.content);
+        editor.setEditable(true);
+      }
+    }
+  };
+
+  const loadJsonFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const jsonData = JSON.parse(event.target.result);
+        console.log('Loading JSON data:', jsonData);
+        if (jsonData.content) {
+          setContent(jsonData.content);
+          setEditable(true);
+          if (editor) {
+            editor.commands.setContent(jsonData.content);
+            editor.setEditable(true);
+          }
+          alert('JSON file loaded successfully!');
+        } else {
+          alert('Invalid JSON format. Missing content field.');
+        }
+      } catch (err) {
+        console.error('Error parsing JSON:', err);
+        alert('Invalid JSON file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Note: handleSave is now handled by the parent Home component
+  // This component focuses on editor functionality only
+  
+  // Set editor instance when editor is created
+  React.useEffect(() => {
+    if (editor && setEditorInstance) {
+      setEditorInstance(editor);
+    }
+  }, [editor, setEditorInstance]);
+
+  // Update editable state when readOnly prop changes
+  React.useEffect(() => {
+    if (editor) {
+      editor.setEditable(!readOnly);
+      setEditable(!readOnly);
+    }
+  }, [readOnly, editor]);
 
   return (
     <div className="editor-viewport">
       <div className="editor-menu">
-        <MenuBar editor={editor} />
-        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-           {editor && <ExportToPdf  />}
-           {editor && <ExportToWord editor={editor} />}
-           {editor && <SaveLoadControls editor={editor} />}
-           {editor && <SaveJsonFormat editor={editor} />}
-           {/* {editor && <ExportToWordDoc editor={editor} />} */}
+        <MenuBar editor={editor} disabled={!editable} />
+        <div style={{ display: 'flex', gap: '10px', marginTop: '10px', alignItems: 'center' }}>
+          {editor && <ExportToPdf />}
+          {editor && <ExportToWord editor={editor} />}
+          <input
+            type="file"
+            accept="application/json"
+            style={{ display: 'block' }}
+            onChange={loadJsonFile}
+          />
         </div>
-        
+      </div>
+      <div id="editor-page" className="editor-page">
+        <div className="page">
+          <EditorContent editor={editor} />
+        </div>
       </div>
 
-      <div id="editor-page" className="editor-page">
-        <EditorContent
-         editor={editor}
-       />
-      </div>
     </div>
   )
 }

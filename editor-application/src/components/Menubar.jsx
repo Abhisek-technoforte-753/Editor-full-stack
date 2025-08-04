@@ -18,20 +18,30 @@ import {
   TableIcon,
   ImageIcon,
   Shapes,
+  ChevronDown,
+  CheckSquare,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Palette
 } from 'lucide-react' // make sure you have lucide-react installed
 import { TableGridSelector } from './TableGridSelector' // your custom table grid selector component
 import "./menubar.css" // import your CSS styles for the menu bar
+import { ListDropdownMenu } from './ListDropdownMenu'
+
 export const MenuBar = ({ editor }) => {
   const [showTableGrid, setShowTableGrid] = useState(false)
   const [showShapeDropdown, setShowShapeDropdown] = useState(false)
-   const [tableAction, setTableAction] = useState('')
+  const [tableAction, setTableAction] = useState('')
+  const [showColorDropdown, setShowColorDropdown] = useState(false)
   const fileInputRef = useRef(null)
-
+// const [showListDropdown, setShowListDropdown] = useState(false)
   if (!editor) {
     return null
   }
 
-   const handleTableAction = (action) => {
+  const handleTableAction = (action) => {
     switch (action) {
       case 'addColumnBefore':
         editor.commands.addColumnBefore()
@@ -84,124 +94,103 @@ export const MenuBar = ({ editor }) => {
     }
   }
 
-   const insertShape = (type, label) => {
+  const insertShape = (type, label) => {
     editor.chain().focus().insertShape(type, label).run()
     setShowShapeDropdown(false)
   }
   return (
-    <div
-      className="control-group"
-      style={{
-        padding: '10px',
-        border: '1px solid #ccc',
-        backgroundColor: '#fff',
-        marginBottom: '16px',
-        borderRadius: '6px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '8px',
-      }}
-    >
-      <button
-        onClick={() => editor.chain().focus().toggleBold().run()}
-        className={editor.isActive('bold') ? 'is-active' : ''}
-        type="button"
-        aria-label="Toggle Bold"
-      >
-        <Bold size={16} />
-      </button>
-      <button onClick={() => {
-        alert('This feature is not implemented yet.')
-        // editor.chain().focus().insertContent({
-        //   type: 'flowchart',
-        //   attrs: { code: 'graph TD;\nA-->B;' },
-        // }).run()
-      }}>
-        Flowchart
-      </button>
-      {/* Shape insertion buttons */}
-      <div
-      className="control-group"
-      style={{
-        padding: '10px',
-        border: '1px solid #ccc',
-        backgroundColor: '#fff',
-        marginBottom: '16px',
-        borderRadius: '6px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '8px',
-        position: 'relative',
-      }}
-    >
-     
-
-      {/* Shape dropdown trigger */}
-      <div >
-        <button onClick={() => setShowShapeDropdown(prev => !prev)} type="button">
-          <Shapes size={18} /> Shape
-        </button>
-
-        {showShapeDropdown && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '40px',
-              left: 0,
-              background: '#fff',
-              border: '1px solid #ccc',
-              borderRadius: '6px',
-              padding: '10px',
-              zIndex: 1000,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            }}
-          >
-            <button onClick={() => insertShape('rectangle', 'Rectangle')}>🟥 Rectangle</button>
-            <button onClick={() => insertShape('circle', 'Circle')}>⭕ Circle</button>
-            <button onClick={() => insertShape('triangle', 'Triangle')}>🔺 Triangle</button>
-            <button onClick={() => insertShape('parallelogram', 'Parallelogram')}>▰ Parallelogram</button>
-            <button onClick={() => insertShape('terminator', 'Terminator')}>🛑 Terminator</button>
-            <button onClick={() => insertShape('decision', 'Decision')}>🔷 Decision</button>
+    <nav className="menubar">
+      <div className="menubar-content">
+        {/* Row 1 */}
+        <div className="menubar-row">
+          <button title="Bold" onClick={() => editor.chain().focus().toggleBold().run()} className={`menubar-btn${editor.isActive('bold') ? ' menubar-btn-active' : ''}`}> <Bold size={18} /> </button>
+          <button title="Italic" onClick={() => editor.chain().focus().toggleItalic().run()} className={`menubar-btn${editor.isActive('italic') ? ' menubar-btn-active' : ''}`}> <Italic size={18} /> </button>
+          <button title="Underline" onClick={() => editor.chain().focus().toggleUnderline().run()} className={`menubar-btn${editor.isActive('underline') ? ' menubar-btn-active' : ''}`}> <Underline size={18} /> </button>
+          <button title="Strikethrough" onClick={() => editor.chain().focus().toggleStrike().run()} className={`menubar-btn${editor.isActive('strike') ? ' menubar-btn-active' : ''}`}> <Strikethrough size={18} /> </button>
+          <button title="Code" onClick={() => editor.chain().focus().toggleCode().run()} className={`menubar-btn${editor.isActive('code') ? ' menubar-btn-active' : ''}`}> <Code size={18} /> </button>
+          <button title="Clear Formatting" onClick={() => editor.chain().focus().unsetAllMarks().run()} className="menubar-btn"> <Eraser size={18} /> </button>
+          <select title="Font Family" onChange={e => editor.chain().focus().setMark('textStyle', { fontFamily: e.target.value }).run()} defaultValue="" className="menubar-select">
+            <option value="">Font</option>
+            <option value="Arial">Arial</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Verdana">Verdana</option>
+          </select>
+          <select title="Font Size" onChange={e => editor.chain().focus().setMark('textStyle', { fontSize: e.target.value }).run()} defaultValue="" className="menubar-select">
+            <option value="">Size</option>
+            <option value="12px">12</option>
+            <option value="14px">14</option>
+            <option value="16px">16</option>
+            <option value="18px">18</option>
+            <option value="24px">24</option>
+            <option value="32px">32</option>
+          </select>
+          <button title="Highlight" onClick={() => editor.chain().focus().toggleHighlight().run()} className="menubar-btn"> <Highlighter size={18} /> </button>
+          {/* Color Picker Dropdown */}
+          <div className="menubar-relative" style={{ display: 'inline-block' }}>
+            <button
+              title="Text Color"
+              onClick={() => setShowColorDropdown((prev) => !prev)}
+              className="menubar-btn"
+              type="button"
+            >
+              <Palette size={18} />
+            </button>
+            {showColorDropdown && (
+              <div className="menubar-popup" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, 1fr)',
+                gap: '6px',
+                padding: '10px',
+                background: '#fff',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                position: 'absolute',
+                zIndex: 10
+              }}>
+                {[
+                  '#000000', '#333333', '#666666', '#999999', '#CCCCCC', '#FFFFFF', '#FF0000',
+                  '#FFA500', '#FFFF00', '#008000', '#00CED1', '#0000FF', '#800080', '#FFC0CB',
+                  '#FFD700', '#A52A2A', '#8B4513', '#2E8B57', '#20B2AA', '#4682B4', '#708090'
+                ].map(color => (
+                  <button
+                    key={color}
+                    title={color}
+                    onClick={() => {
+                      editor.chain().focus().setColor(color).run();
+                      setShowColorDropdown(false);
+                    }}
+                    style={{ background: color, width: 22, height: 22, border: editor.isActive('textStyle', { color }) ? '2px solid #333' : '1px solid #ccc', borderRadius: 4, cursor: 'pointer' }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      <div>
-        {/* {editor.isActive('table') && (
-        <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
-          <button onClick={() => editor.commands.addColumnBefore()}>
-            ➕ Add Column Before
-          </button>
-          <button onClick={() => editor.commands.addColumnAfter()}>
-            ➕ Add Column After
-          </button>
-          <button onClick={() => editor.commands.addRowBefore()}>
-            ➕ Add Row Above
-          </button>
-          <button onClick={() => editor.commands.addRowAfter()}>
-            ➕ Add Row Below
-          </button>
-          <button onClick={() => editor.commands.deleteRow()}>
-            ❌ Delete Row
-          </button>
-          <button onClick={() => editor.commands.deleteColumn()}>
-            ❌ Delete Column
-          </button>
+          <button title="Align Left" onClick={() => editor.chain().focus().setTextAlign('left').run()} className="menubar-btn"> <AlignLeft size={18} /> </button>
+          <button title="Align Center" onClick={() => editor.chain().focus().setTextAlign('center').run()} className="menubar-btn"> <AlignCenter size={18} /> </button>
         </div>
-      )} */}
-     
-      </div>
-      
-    </div>
-      <div>
-         {/* {editor.isActive('table') && ( */}
-        <div style={{height:"100%" }}>
+        {/* Row 2 */}
+        <div className="menubar-row">
+          <button title="Align Right" onClick={() => editor.chain().focus().setTextAlign('right').run()} className="menubar-btn"> <AlignRight size={18} /> </button>
+          <button title="Superscript" onClick={() => editor.chain().focus().toggleSuperscript().run()} className="menubar-btn"> <Type size={18} className="-mb-1" /> <span className="text-xs align-super">sup</span> </button>
+          <button title="Subscript" onClick={() => editor.chain().focus().toggleSubscript().run()} className="menubar-btn"> <Type size={18} className="-mt-1" /> <span className="text-xs align-sub">sub</span> </button>
+          <ListDropdownMenu editor={editor} />
+          <button title="Task List" onClick={() => editor.chain().focus().toggleTaskList().run()} className="menubar-btn"> <CheckSquare size={18} /> </button>
+          <div className="menubar-relative">
+            <button title="Insert Table" onClick={() => setShowTableGrid((prev) => !prev)} type="button" className="menubar-btn"> <TableIcon size={18} /> </button>
+            {showTableGrid && (
+              <div className="menubar-popup">
+                <TableGridSelector onSelect={insertTable} />
+              </div>
+            )}
+          </div>
+          {/* Table Actions Dropdown */}
           <select
-          className='table-action-select'
+            className="menubar-select"
             value={tableAction}
             onChange={(e) => handleTableAction(e.target.value)}
+            title="Table Actions"
           >
             <option value="">-- Table Actions --</option>
             <option value="addColumnBefore">➕ Add Column Before</option>
@@ -211,194 +200,30 @@ export const MenuBar = ({ editor }) => {
             <option value="deleteRow">❌ Delete Row</option>
             <option value="deleteColumn">❌ Delete Column</option>
           </select>
-        </div>
-      {/* )} */}
-      </div>
-      <button onClick={() => editor
-        .chain()
-        .focus()
-        .insertLine({
-          x: 100,
-          y: 100,
-          length: 200,
-          angle: 30,
-          strokeWidth: 2,
-          strokeColor: 'black',
-        })
-        .run()
-      } type="button">
-        ➖
-      </button>
 
-
-
-      <button
-        onClick={onClickImageButton}
-        type="button"
-        aria-label="Insert Image"
-      >
-        <ImageIcon size={16} />
-      </button>
-
-      {/* Hidden file input */}
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        onChange={onFileChange}
-      />
-
-      <button
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        className={editor.isActive('italic') ? 'is-active' : ''}
-        type="button"
-        aria-label="Toggle Italic"
-      >
-        <Italic size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleStrike().run()}
-        className={editor.isActive('strike') ? 'is-active' : ''}
-        type="button"
-        aria-label="Toggle Strikethrough"
-      >
-        <Strikethrough size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleCode().run()}
-        className={editor.isActive('code') ? 'is-active' : ''}
-        type="button"
-        aria-label="Toggle Code"
-      >
-        <Code size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().unsetAllMarks().run()}
-        type="button"
-        aria-label="Clear Marks"
-      >
-        <Eraser size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().clearNodes().run()}
-        type="button"
-        aria-label="Clear Nodes"
-      >
-        <Eraser size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={editor.isActive('heading', { level: 1 }) ? 'is-active' : ''}
-        type="button"
-        aria-label="Heading 1"
-      >
-        H1
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''}
-        type="button"
-        aria-label="Heading 2"
-      >
-        H2
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={editor.isActive('bulletList') ? 'is-active' : ''}
-        type="button"
-        aria-label="Bullet List"
-      >
-        <List size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={editor.isActive('orderedList') ? 'is-active' : ''}
-        type="button"
-        aria-label="Ordered List"
-      >
-        <ListOrdered size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        className={editor.isActive('blockquote') ? 'is-active' : ''}
-        type="button"
-        aria-label="Blockquote"
-      >
-        <Quote size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().setHorizontalRule().run()}
-        type="button"
-        aria-label="Horizontal Rule"
-      >
-        <Minus size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().undo().run()}
-        disabled={!editor.can().chain().focus().undo().run()}
-        type="button"
-        aria-label="Undo"
-      >
-        <Undo size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().redo().run()}
-        disabled={!editor.can().chain().focus().redo().run()}
-        type="button"
-        aria-label="Redo"
-      >
-        <Redo size={16} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().setColor('#958DF1').run()}
-        className={editor.isActive('textStyle', { color: '#958DF1' }) ? 'is-active' : ''}
-        type="button"
-        aria-label="Highlight Purple"
-      >
-        <Highlighter size={16} /> Purple
-      </button>
-
-      {/* Table Insert Dropdown */}
-      <div style={{ position: 'relative' }}>
-        <button
-          onClick={() => setShowTableGrid((prev) => !prev)}
-          type="button"
-          aria-label="Insert Table"
-        >
-          <TableIcon size={16} />
-        </button>
-
-        {showTableGrid && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '36px',
-              left: 0,
-              zIndex: 10,
-              background: '#fff',
-              padding: 6,
-              border: '1px solid #ccc',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-            }}
-          >
-            <TableGridSelector onSelect={insertTable} />
+          <div className="menubar-relative">
+            <button title="Insert Shape" onClick={() => setShowShapeDropdown(prev => !prev)} type="button" className="menubar-btn flex items-center gap-1"> <Shapes size={18} /> </button>
+            {showShapeDropdown && (
+              <div className="menubar-popup">
+                <button onClick={() => insertShape('rectangle', 'Rectangle')} className="menubar-btn">🟥</button>
+                <button onClick={() => insertShape('circle', 'Circle')} className="menubar-btn">⭕</button>
+                <button onClick={() => insertShape('triangle', 'Triangle')} className="menubar-btn">🔺</button>
+                <button onClick={() => insertShape('parallelogram', 'Parallelogram')} className="menubar-btn">▰</button>
+                <button onClick={() => insertShape('terminator', 'Terminator')} className="menubar-btn">🛑</button>
+                <button onClick={() => insertShape('decision', 'Decision')} className="menubar-btn">🔷</button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
+          
+          <button title="Insert Image" onClick={onClickImageButton} type="button" className="menubar-btn"> <ImageIcon size={18} /> </button>
+          <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={onFileChange} />
+          <button title="Insert Line" onClick={() => editor.chain().focus().insertLine({ x: 100, y: 100, length: 200, angle: 30, strokeWidth: 2, strokeColor: 'black' }).run()} type="button" className="menubar-btn"> <Minus size={18} /> </button>
+          <button title="Smart Quotes" onClick={() => editor.commands.wrapInSmartQuotes()} disabled={!editor || editor.state.selection.empty} className="menubar-btn"> <Quote size={18} /> </button>
+          <button title="Horizontal Rule" onClick={() => editor.chain().focus().setHorizontalRule().run()} type="button" className="menubar-btn"> <Minus size={18} /> </button>
+          <button title="Undo" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().chain().focus().undo().run()} type="button" className="menubar-btn"> <Undo size={18} /> </button>
+          <button title="Redo" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().chain().focus().redo().run()} type="button" className="menubar-btn"> <Redo size={18} /> </button>
+        </div>
+       </div>
+    </nav>
   )
 }

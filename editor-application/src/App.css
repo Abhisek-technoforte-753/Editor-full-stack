@@ -2,4 +2,43 @@
   text-align: center;
 }
 
+/* Navigation Styles */
+
+
+.nav-links a,
+.logout-btn {
+  display: block;
+  box-sizing: border-box;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+
+ 
+}
+.nav-links button{
+  text-align: center;
+  text-decoration: none;
+}
+
+#logout-btn {
+  background: #e53935;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  margin: 0 0.2rem;
+  transition: background 0.2s, color 0.2s;
+  font-weight: 500;
+  font-size: 1rem;
+  box-sizing: border-box;
+  display: block;
+}
+#logout-btn:hover, #logout-btn:focus {
+  background: #b71c1c;
+  color: #fff;
+  outline: none;
+}
 
